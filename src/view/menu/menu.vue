@@ -1,67 +1,108 @@
+<style lang="less">
+  @import './menu.less';
+</style>
 <template>
   <div>
     <Card>
-      <tables ref="tables" editable searchable search-place="top" v-model="tableData" :columns="columns" @on-delete="handleDelete"/>
-      <Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出为Csv文件</Button>
+      <div class="search-con search-con-top">
+        <Select v-model="searchKey" class="search-col">
+          <Option v-for="item in columns" v-if="item.key !== 'handle'" :value="item.key" :key="`search-col-${item.key}`">{{ item.title }}</Option>
+        </Select>
+        <Input clearable placeholder="输入关键字搜索" class="search-input" v-model="searchValue"/>
+        <Button @click="handleSearch" class="search-btn" type="primary"><Icon type="search"/>&nbsp;&nbsp;搜索</Button>
+      </div>
+      <div class="content">
+        <tree-table :expand-type="false" :selectable="false" :columns="columns" :data="tableData" >
+          <template slot="meta" slot-scope="scope">
+            <span v-text="formateMeta(scope)"></span>
+          </template>
+          <template slot="operate" slot-scope="scope">
+            <Button @click="edit(scope.row)" icon="md-create" type="primary" shape="circle" size="small"></Button>
+          </template>
+        </tree-table>
+      </div>
     </Card>
+    <Modal
+      v-model="seeAble"
+      title="编辑">
+    </Modal>
   </div>
 </template>
-
 <script>
-  import Tables from '_c/tables'
-  import { getTableData } from '@/api/data'
+  import {getMenuList} from '@/api/menu'
   export default {
     name: 'tables_page',
     components: {
-      Tables
+
     },
     data () {
       return {
-        columns: [
-          {title: 'Name', key: 'name', sortable: true},
-          {title: 'Email', key: 'email', editable: true},
-          {title: 'Create-Time', key: 'createTime'},
+        columns:[
           {
-            title: 'Handle',
-            key: 'handle',
-            options: ['delete'],
-            button: [
-              (h, params, vm) => {
-                return h('Poptip', {
-                  props: {
-                    confirm: true,
-                    title: '你确定要删除吗?'
-                  },
-                  on: {
-                    'on-ok': () => {
-                      vm.$emit('on-delete', params)
-                      vm.$emit('input', params.tableData.filter((item, index) => index !== params.row.initRowIndex))
-                    }
-                  }
-                }, [
-                  h('Button', '自定义删除')
-                ])
-              }
-            ]
+            title: '名称',
+            key: 'title',
+            align: 'center',
+            width: '200px'
+          }, {
+            title: '访问地址',
+            key: 'path',
+            width: '200px'
+          }, {
+            title: '唯一标识',
+            key: 'name',
+            align: 'center',
+            width: '200px'
+          }, {
+            title: '路由meta',
+            key: 'meta',
+            width: '200px',
+            type: 'template',
+            template: 'meta'
+          }, {
+            title: '组件地址',
+            key: 'component',
+            width: '200px'
+          }, {
+            title: '排序号',
+            key: 'sort',
+            width: '200px'
+          }, {
+            title: '操作',
+            key: 'operate',
+            width: '200px',
+            type: 'template',
+            template: 'operate'
           }
+
         ],
-        tableData: []
+        tableData:[],
+        searchKey: '',
+        searchValue: '',
+        seeAble: false
       }
     },
     methods: {
-      handleDelete (params) {
-        console.log(params)
+      handleSearch() {
+
       },
-      exportExcel () {
-        this.$refs.tables.exportCsv({
-          filename: `table-${(new Date()).valueOf()}.csv`
-        })
+      formateMeta(scope) {
+        let str= JSON.stringify(scope.row.meta)
+        return str
+      },
+      edit(row) {
+        this.seeAble = true
+
       }
     },
     mounted () {
-      getTableData().then(res => {
-        this.tableData = res.data
+      getMenuList().then(res=>{
+        if (res.data.code === 1) {
+          this.tableData= res.data.data
+        } else if (res.data.code == -1 ) {
+          this.$Message.error(res.data.msg)
+        }
       })
+
     }
   }
 </script>

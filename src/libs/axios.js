@@ -1,25 +1,14 @@
 import axios from 'axios'
 import store from '@/store'
 // import { Spin } from 'iview'
-const addErrorLog = errorInfo => {
-  const { statusText, status, request: { responseURL } } = errorInfo
-  let info = {
-    type: 'ajax',
-    code: status,
-    mes: statusText,
-    url: responseURL
-  }
-  if (!responseURL.includes('save_error_logger')) store.dispatch('addErrorLog', info)
-}
-
-const postFormConfig= {
-  transformRequest:[function (data) {//允许在向服务器发送前，修改请求数据,只能用在 'PUT', 'POST' 和 'PATCH' 这几个请求方法; 后面数组中的函数必须返回一个字符串，或 ArrayBuffer，或 Stream
-    if(data == undefined)return "";
+const postFormConfig = {
+  transformRequest: [function (data) { // 允许在向服务器发送前，修改请求数据,只能用在 'PUT', 'POST' 和 'PATCH' 这几个请求方法; 后面数组中的函数必须返回一个字符串，或 ArrayBuffer，或 Stream
+    if (data === undefined) return ''
     let ret = ''
     for (let it in data) {
       ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
     }
-    return ret;
+    return ret
   }]
 }
 
@@ -71,7 +60,7 @@ class HttpRequest {
           request: { responseURL: config.url }
         }
       }
-      addErrorLog(errorInfo)
+      // addErrorLog(errorInfo)
       return Promise.reject(error)
     })
   }
@@ -81,10 +70,10 @@ class HttpRequest {
     this.interceptors(instance, options.url)
     return instance(options)
   }
-  postForm(options) {
+  postForm (options) {
     const instance = axios.create()
     options = Object.assign(this.getInsideConfig(), options)
-    if (options.method && options.method== 'post') {
+    if (options.method && options.method === 'post') {
       options = Object.assign(postFormConfig, options)
     }
     this.interceptors(instance, options.url)
