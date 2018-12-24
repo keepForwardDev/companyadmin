@@ -19,7 +19,7 @@ export default {
     token: getToken(),
     access: '', // 自带的 菜单权限，已由动态路由代替，废弃
     resources: [], // 按钮权限
-    departmentName: '', //部门名称
+    departmentName: '', // 部门名称
     roleName: '',
     hasGetInfo: false,
     unreadCount: 0,
@@ -69,13 +69,13 @@ export default {
       msgItem.loading = false
       state[to].unshift(msgItem)
     },
-    setDepartmentName(state, departmentName) {
+    setDepartmentName (state, departmentName) {
       state.departmentName = departmentName
     },
-    setResources(state,list) {
+    setResources (state, list) {
       state.resources = list
     },
-    setRoleName(state,roleName) {
+    setRoleName (state, roleName) {
       state.roleName = roleName
     }
   },
@@ -86,16 +86,16 @@ export default {
   },
   actions: {
     // 登录
-    handleLogin ({ commit }, {userName, password}) {
+    handleLogin ({ commit }, { userName, password }) {
       userName = userName.trim()
       return new Promise((resolve, reject) => {
         login({
           userName,
           password
         }).then(res => {
-          if (res.code === 1) {
+          if (res.data.code === 1) {
             const data = res.data
-            commit('setToken', data.token)
+            commit('setToken', data.data)
             resolve()
           }
         }).catch(err => {
@@ -125,15 +125,15 @@ export default {
         try {
           getUserInfo(state.token).then(res => {
             const data = res.data
-            if (data.code ===1 ) {
-              commit('setAvator', data.avator)
-              commit('setUserName', data.userName)
-              commit('setUserId', data.userId)
-              commit('setAccess', data.access)
+            if (data.code === 1) {
+              commit('setAvator', data.data.avatar)
+              commit('setUserName', data.data.userName)
+              commit('setUserId', data.data.userId)
+              commit('setAccess', data.data.access)
               commit('setHasGetInfo', true)
-              commit('resources', data.resources)
-              commit('departmentName', data.departmentName)
-              commit('roleName', data.roleName)
+              commit('setResources', data.data.resources)
+              commit('setDepartmentName', data.data.departmentName)
+              commit('setRoleName', data.data.roleName)
             }
             resolve(data)
           }).catch(err => {

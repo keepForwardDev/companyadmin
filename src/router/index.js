@@ -23,25 +23,36 @@ const turnTo = (to, access, next) => {
 router.beforeEach((to, from, next) => {
   iView.LoadingBar.start()
   const token = getToken()
-  let num= store.state.app.menus.length
-  if (num === 0) {
+  let num = store.state.app.menus.length
+  if (num === 0 && token) {
     getRouterReq().then(res => {
       if (res.data.code === 1) {
-        var temp= [...[],...rot]
+        var temp = [...[], ...rot]
         var routes = router.options.routes
         var menu = filterAsyncRouter(res.data.data)
         router.addRoutes(menu)
         for (var i in menu) {
           routes.push(menu[i])
         }
-        var menu1=[...temp,...menu]
-        store.commit('setMenus',menu1)
+        var menu1 = [...temp, ...menu]
+        store.commit('setMenus', menu1)
+        next({
+          name: homeName // 跳转到homeName页
+        })
+      } else {
+        next({
+          name: LOGIN_PAGE_NAME // 跳转到登录页
+        })
       }
     }).catch(error => {
+      setToken('')
+      next({
+        name: LOGIN_PAGE_NAME // 跳转到登录页
+      })
+      // store.commit('setToken','')
       console.log(error)
     })
-  }
-  if (!token && to.name !== LOGIN_PAGE_NAME) {
+  } else if (!token && to.name !== LOGIN_PAGE_NAME) {
     // 未登录且要跳转的页面不是登录页
     next({
       name: LOGIN_PAGE_NAME // 跳转到登录页
@@ -49,7 +60,7 @@ router.beforeEach((to, from, next) => {
   } else if (!token && to.name === LOGIN_PAGE_NAME) {
     // 未登陆且要跳转的页面是登录页
     next() // 跳转
-  } else if ((token && to.name === LOGIN_PAGE_NAME )) {
+  } else if ((token && to.name === LOGIN_PAGE_NAME)) {
     // 已登录且要跳转的页面是主页 或者刷新浏览器
     next({
       name: homeName // 跳转到homeName页
@@ -60,7 +71,7 @@ router.beforeEach((to, from, next) => {
     } else {
       store.dispatch('getUserInfo').then(user => {
         // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-        if (num==0) {
+        if (num === 0) {
           next({
             name: homeName // 跳转到homeName页
           })
@@ -68,7 +79,9 @@ router.beforeEach((to, from, next) => {
           turnTo(to, user.access, next)
         }
       }).catch(() => {
+        // 暂时不用cookie登录
         setToken('')
+        // store.commit('setToken','')
         next({
           name: 'login'
         })
