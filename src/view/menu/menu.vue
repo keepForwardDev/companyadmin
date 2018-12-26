@@ -283,6 +283,9 @@ export default {
             } else {
               this.$Message.error(res.data.msg)
             }
+          }).catch(error => {
+            console.log(error)
+            this.$Message.error('网络繁忙，请稍后再试')
           })
         } else {
           setTimeout(() => {
@@ -297,9 +300,9 @@ export default {
     deleteMenu (row) {
       deleteMenu(row.id).then(res => {
         this.$Message.success(res.data.msg)
-      }).catch(err => {
-        console.log(err)
-        this.$Message.success('网络繁忙，请稍后再试')
+      }).catch(error => {
+        console.log(error)
+        this.$Message.error('网络繁忙，请稍后再试')
       })
     },
     transJson () { // 将meta变成json
