@@ -1,5 +1,8 @@
 {
   "presets": [
     "@vue/app"
+  ],
+  "ignore": [
+    "./src/plugin/ztree/js/*.js"
   ]
 }

@@ -1,7 +1,14 @@
 import axios from '@/libs/api.request'
-export const getMenuList = (token) => {
+export const getMenuList = () => {
   return axios.request({
     url: '/menu/menuList',
+    method: 'get'
+  })
+}
+
+export const getTree = () => {
+  return axios.request({
+    url: '/menu/menuTree',
     method: 'get'
   })
 }
@@ -17,7 +24,7 @@ export const saveMenu = (data) => {
 export const deleteMenu = (id) => {
   return axios.request({
     url: '/menu/delete',
-    id,
+    params: id,
     method: 'get'
   })
 }

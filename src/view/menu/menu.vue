@@ -1,5 +1,6 @@
 <style lang="less">
   @import './menu.less';
+  @import '~@/plugin/ztree/css/zTreeStyle/zTreeStyle.css';
 </style>
 <template>
   <div>
@@ -29,6 +30,7 @@
       width="700px"
       ok-text="保存"
       :loading="loading"
+      :scrollable="true"
       @on-ok="saveForm"
       :title="title">
       <Form :model="formItem" :label-width="200" :rules="ruleValidate" ref="menuForm">
@@ -79,7 +81,8 @@
               <span class="label-item">父级菜单</span>
             </template>
             <template>
-              <Tree :data="tableData" ref="tree"></Tree>
+              <!--<Tree :data="tableData" ref="tree"></Tree>-->
+              <ul id="tree" class="ztree" style="width:230px; overflow:auto;"></ul>
             </template>
           </FormItem>
           </Col>
@@ -90,7 +93,7 @@
             <template slot="label">
               <span class="label-item">路由meta</span>
             </template>
-            <Input v-model="formItem.meta" placeholder="json格式,默认填入菜单名称"></Input>
+            <Input v-model="formItem.meta" placeholder="json格式,默认填入菜单名称，格式需正确，否则无法解析"></Input>
           </FormItem>
           </Col>
         </Row>
@@ -107,12 +110,22 @@
         </Row>
       </Form>
     </Modal>
+    <Modal
+      v-model="deleteAble"
+      width="300px"
+      :draggable="true"
+      :loading="deleteLoading"
+      @on-ok="confirmDelete" title="确认">
+      是否确认删除？
+    </Modal>
   </div>
 </template>
 <script>
-import { getMenuList, saveMenu, deleteMenu } from '@/api/menu'
+import { getMenuList, saveMenu, deleteMenu, getTree } from '@/api/menu'
 import { checNotNull } from '@/libs/validate'
 import { sloveErr } from '@/libs/util'
+import '@/plugin/ztree/js/jquery-1.4.4.min.js'
+import '@/plugin/ztree/js/jquery.ztree.all.js'
 export default {
   name: 'tables_page',
   components: {},
@@ -157,9 +170,12 @@ export default {
       ],
       tableData: [],
       treeData: [],
+      deleteId: '',
       searchKey: 'title',
       searchValue: '',
       seeAble: false,
+      deleteAble: false,
+      deleteLoading: false,
       loading: true,
       searchColumns: [
         {
@@ -194,6 +210,16 @@ export default {
           trigger: 'blur'
         }],
         component: checNotNull()
+      },
+      setting: {
+        data:{
+          simpleData:{
+            enable:true,
+            idKey: 'id',
+            pidKey: 'parentId',
+            rootId: 'null'
+          }
+        }
       }
     }
   },
@@ -206,6 +232,7 @@ export default {
       return str
     },
     newMenu () {
+      this.title = '新增'
       this.formItem = this.initFormItem()
       this.seeAble = true
     },
@@ -213,6 +240,7 @@ export default {
 
     },
     edit (row) {
+      this.title = '编辑'
       this.formItem = {
         title: row.row.title,
         path: row.row.path,
@@ -224,19 +252,25 @@ export default {
         parentId: row.row.parentId
       }
       setTimeout(() => {
-        var index = row.rowIndex
-        var select = document.getElementsByClassName('ivu-tree-title')
-        select[index].click()
         this.$refs['menuForm'].validate()
+        var treeObj = $.fn.zTree.getZTreeObj('tree');
+        var node = treeObj.getNodeByParam('id', row.row.parentId, null)
+        treeObj.selectNode(node)
       }, 1000)
       this.seeAble = true
     },
-    getParentIndex (currentIndex, index) {
-      for (var i = 0; i < currentIndex; i++) {
-        if (this.tableData[i].children.length > 0) {
-
+    getParentIndex (index,currentIndex, node, j) {
+      for (var i = 0; i< index; i++) {
+        let len= node[i].children.length
+        if (len + j >= currentIndex) {
+          return j
         }
+        if (len > 0) {
+          j=this.getParentIndex(len, currentIndex, node[i].children, j)
+        }
+        j++
       }
+      return j
     },
     expanAll () {
       for (var i in this.tableData) {
@@ -271,14 +305,20 @@ export default {
       this.loading = true
       this.$refs['menuForm'].validate((valid) => {
         if (valid) {
-          var selectNode = this.getSelectNode()
-          this.formItem.parentId = selectNode
+          //var selectNode = this.getSelectNode()
+          var treeObj = $.fn.zTree.getZTreeObj('tree');
+          var nodes = treeObj.getSelectedNodes();
+          if (nodes.length>0) {
+            this.formItem.parentId = nodes[0].id
+          }
           var data = Object.assign({}, this.formItem)
           data.meta = this.transJson()
           saveMenu(data).then(res => {
             if (res.data.code === 1) {
               this.$Message.success(res.data.msg)
               this.seeAble = false
+              this.getZtree()
+              this.getMenu()
             } else {
               this.$Message.error(res.data.msg)
             }
@@ -296,8 +336,17 @@ export default {
       })
     },
     deleteMenu (row) {
-      deleteMenu(row.id).then(res => {
+      this.deleteAble = true
+      this.deleteId = row.id
+    },
+    confirmDelete() {
+      var params= {
+        id: this.deleteId
+      }
+      deleteMenu(params).then(res => {
         this.$Message.success(res.data.msg)
+        this.getZtree()
+        this.getMenu()
       }).catch(err => {
         sloveErr(err, this)
       })
@@ -306,14 +355,16 @@ export default {
       var json
       if (this.formItem.meta) {
         try {
-          json = JSON.parse(meta)
+          json = JSON.parse(this.formItem.meta)
           if (json.title) {
 
           } else {
             json.title = this.formItem.title
           }
         } catch (e) {
-
+          json = {
+            title: this.formItem.title
+          }
         }
       } else {
         json = {
@@ -329,22 +380,33 @@ export default {
       } else {
         return ''
       }
+    },
+    getMenu() {
+      getMenuList().then(res => {
+        if (res.data.code === 1) {
+          this.tableData = res.data.data
+        } else if (res.data.code === -1) {
+          this.$Message.error(res.data.msg)
+        }
+      }).catch(err => {
+        sloveErr(err, this)
+      })
+    },
+    getZtree() {
+      getTree().then(res => {
+        if (res.data.code === 1) {
+          $.fn.zTree.init($("#tree"), this.setting, res.data.data);
+        } else if (res.data.code === -1) {
+          this.$Message.error(res.data.msg)
+        }
+      }).catch(err => {
+        sloveErr(err, this)
+      })
     }
   },
   mounted () {
-    getMenuList().then(res => {
-      if (res.data.code === 1) {
-        this.tableData = res.data.data
-      } else if (res.data.code === -1) {
-        this.$Message.error(res.data.msg)
-      }
-    }).catch(err => {
-      sloveErr(err, this)
-    })
+    this.getMenu()
+    this.getZtree()
   }
 }
 </script>
-
-<style>
-
-</style>
