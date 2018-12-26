@@ -297,7 +297,8 @@ export default {
     deleteMenu (row) {
       deleteMenu(row.id).then(res => {
         this.$Message.success(res.data.msg)
-      }).catch(() => {
+      }).catch(err => {
+        console.log(err)
         this.$Message.success('网络繁忙，请稍后再试')
       })
     },
