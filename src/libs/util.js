@@ -421,3 +421,20 @@ export const filterAsyncRouter = (asyncRouterMap) => { // 遍历后台传来的�
   })
   return accessedRouters
 }
+
+/**
+ * 统一系统异常输出
+ * @param err
+ * @param that vue 指针
+ */
+export const sloveErr = (err, that) => {
+  if (err.response && err.response.data && err.response.status === 401) {
+    that.$Notice.open({
+      title: '通知',
+      desc: err.response.data.msg,
+      duration: 2
+    })
+  } else {
+    that.$Message.error('网络繁忙，请稍后再试')
+  }
+}

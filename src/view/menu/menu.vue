@@ -5,20 +5,13 @@
   <div>
     <Card>
       <div class="search-con search-con-top">
-        <Select v-model="searchKey" class="search-col">
-          <Option v-for="item in searchColumns" :value="item.key" :key="`search-col-${item.key}`">{{ item.title }}
-          </Option>
-        </Select>
-        <Input clearable placeholder="输入关键字搜索" class="search-input" v-model="searchValue"/>
-        <Button @click="handleSearch" class="search-btn" type="primary"><Icon type="search"/>&nbsp;&nbsp;搜索
-        </Button>
         <div class="operate">
           <Button @click="newMenu()" class="search-btn" type="success"><Icon type="ios-add-circle"/>&nbsp;&nbsp;新增
           </Button>
         </div>
       </div>
       <div class="content">
-        <tree-table :expand-type="false" :selectable="false" :columns="columns" :data="tableData">
+        <tree-table :expand-type="false" :selectable="true" :columns="columns" :data="tableData" :is-fold="false">
           <template slot="meta" slot-scope="scope">
             <span v-text="formateMeta(scope)"></span>
           </template>
@@ -119,7 +112,7 @@
 <script>
 import { getMenuList, saveMenu, deleteMenu } from '@/api/menu'
 import { checNotNull } from '@/libs/validate'
-
+import { sloveErr } from '@/libs/util'
 export default {
   name: 'tables_page',
   components: {},
@@ -220,7 +213,6 @@ export default {
 
     },
     edit (row) {
-      this.expanAll()
       this.formItem = {
         title: row.row.title,
         path: row.row.path,
@@ -238,6 +230,13 @@ export default {
         this.$refs['menuForm'].validate()
       }, 1000)
       this.seeAble = true
+    },
+    getParentIndex (currentIndex, index) {
+      for (var i = 0; i < currentIndex; i++) {
+        if (this.tableData[i].children.length > 0) {
+
+        }
+      }
     },
     expanAll () {
       for (var i in this.tableData) {
@@ -283,9 +282,8 @@ export default {
             } else {
               this.$Message.error(res.data.msg)
             }
-          }).catch(error => {
-            console.log(error)
-            this.$Message.error('网络繁忙，请稍后再试')
+          }).catch(err => {
+            sloveErr(err, this)
           })
         } else {
           setTimeout(() => {
@@ -300,9 +298,8 @@ export default {
     deleteMenu (row) {
       deleteMenu(row.id).then(res => {
         this.$Message.success(res.data.msg)
-      }).catch(error => {
-        console.log(error)
-        this.$Message.error('网络繁忙，请稍后再试')
+      }).catch(err => {
+        sloveErr(err, this)
       })
     },
     transJson () { // 将meta变成json
@@ -341,6 +338,8 @@ export default {
       } else if (res.data.code === -1) {
         this.$Message.error(res.data.msg)
       }
+    }).catch(err => {
+      sloveErr(err, this)
     })
   }
 }
