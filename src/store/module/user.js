@@ -69,13 +69,13 @@ export default {
       msgItem.loading = false
       state[to].unshift(msgItem)
     },
-    setDepartmentName(state, departmentName) {
+    setDepartmentName (state, departmentName) {
       state.departmentName = departmentName
     },
-    setResources(state, list) {
+    setResources (state, list) {
       state.resources = list
     },
-    setRoleName(state, roleName) {
+    setRoleName (state, roleName) {
       state.roleName = roleName
     }
   },
@@ -86,7 +86,7 @@ export default {
   },
   actions: {
     // 登录
-    handleLogin({commit}, {userName, password}) {
+    handleLogin ({ commit }, { userName, password, that }) {
       userName = userName.trim()
       return new Promise((resolve, reject) => {
         login({
@@ -97,6 +97,8 @@ export default {
             const data = res.data
             commit('setToken', data.data)
             resolve()
+          } else {
+            that.$Message.error(res.data.msg)
           }
         }).catch(err => {
           reject(err)

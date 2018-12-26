@@ -1,5 +1,4 @@
 import Main from '@/components/main'
-import {getRouterReq} from '@/api/routers'
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
  * meta: {
@@ -15,8 +14,9 @@ import {getRouterReq} from '@/api/routers'
  *  beforeCloseName: (-) 设置该字段，则在关闭当前tab页时会去'@/router/before-close.js'里寻找该字段名对应的方法，作为关闭前的钩子函数
  * }
  */
-//基础路由配置
-var common= [
+// 基础路由配置,公共的页面或者不需要在菜单上显示的页面可以在此配置，其余的在后台增加，component一定要填对，
+// 例如view/menu/menu.vue
+var common = [
   {
     path: '/login',
     name: 'login',
