@@ -1,4 +1,4 @@
-<style lang="less">
+<style lang="less" scoped>
   @import './menu.less';
   @import '~@/plugin/ztree/css/zTreeStyle/zTreeStyle.css';
 </style>
@@ -23,6 +23,13 @@
                     title="删除"></Button>
           </template>
         </tree-table>
+      </div>
+      <div class="backup">
+        <template>
+          <BackTop :height="100" :bottom="200">
+
+          </BackTop>
+        </template>
       </div>
     </Card>
     <Modal
@@ -58,9 +65,9 @@
           <Col :span="span">
           <FormItem prop="name">
             <template slot="label">
-              <span class="label-item">唯一标识</span>
+              <span class="label-item">页面组件名称</span>
             </template>
-            <Input v-model="formItem.name" placeholder="作为菜单列表唯一区分"></Input>
+            <Input v-model="formItem.name" placeholder="对应页面的 export name ，作为菜单唯一标识"></Input>
           </FormItem>
           </Col>
         </Row>
@@ -127,7 +134,7 @@ import { sloveErr } from '@/libs/util'
 import '@/plugin/ztree/js/jquery-1.4.4.min.js'
 import '@/plugin/ztree/js/jquery.ztree.all.js'
 export default {
-  name: 'tables_page',
+  name: 'sys_menu',
   components: {},
   data () {
     return {
@@ -223,9 +230,12 @@ export default {
         callback: {
           beforeClick: function (treeId, treeNode, clickFlag) {
             var treeObj = $.fn.zTree.getZTreeObj("tree");
-            var nodes = treeObj.getSelectedNodes();
+            var nodes = treeObj.getSelectedNodes()
             if (nodes.length > 0) {
-              treeObj.cancelSelectedNode(nodes[0]);
+              treeObj.cancelSelectedNode(nodes[0])
+              if (nodes[0].id === treeNode.id) {
+                return false
+              }
             }
             return true
           }
@@ -266,7 +276,7 @@ export default {
         var treeObj = $.fn.zTree.getZTreeObj('tree');
         var node = treeObj.getNodeByParam('id', row.row.parentId, null)
         treeObj.selectNode(node)
-      }, 1000)
+      }, 500)
       this.seeAble = true
     },
     getParentIndex (index,currentIndex, node, j) {

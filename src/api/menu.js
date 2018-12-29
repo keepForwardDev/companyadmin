@@ -31,8 +31,24 @@ export const deleteMenu = (id) => {
 
 export const getMenuResources = (data) => {
   return axios.postForm({
-    url: '/menu/menuResources',
+    url: '/resource/menuResources',
     data,
     method: 'post'
+  })
+}
+
+export const saveResource = (data) => {
+  return axios.request({
+    url: '/resource/save',
+    data,
+    method: 'post'
+  })
+}
+
+export const deleteResource = (id) => {
+  return axios.request({
+    url: '/resource/delete',
+    params: id,
+    method: 'get'
   })
 }
