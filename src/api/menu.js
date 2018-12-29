@@ -28,3 +28,11 @@ export const deleteMenu = (id) => {
     method: 'get'
   })
 }
+
+export const getMenuResources = (data) => {
+  return axios.postForm({
+    url: '/menu/menuResources',
+    data,
+    method: 'post'
+  })
+}

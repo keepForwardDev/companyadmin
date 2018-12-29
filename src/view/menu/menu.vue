@@ -219,6 +219,16 @@ export default {
             pidKey: 'parentId',
             rootId: 'null'
           }
+        },
+        callback: {
+          beforeClick: function (treeId, treeNode, clickFlag) {
+            var treeObj = $.fn.zTree.getZTreeObj("tree");
+            var nodes = treeObj.getSelectedNodes();
+            if (nodes.length > 0) {
+              treeObj.cancelSelectedNode(nodes[0]);
+            }
+            return true
+          }
         }
       }
     }
