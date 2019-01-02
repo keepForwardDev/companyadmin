@@ -265,7 +265,7 @@
           total: 0,
           size: 15
         },
-        pageSize: [15, 30, 45, 55],
+        pageSize: [15, 30, 45, 60],
         setting: {
           data: {
             simpleData: {
@@ -294,6 +294,7 @@
     },
     methods: {
       getData() {
+        this.tableLoading = true
         let params = Object.assign({}, this.searchParams, this.pager)
         getMenuResources(params).then(res => {
           if (res.data.code === 1) {

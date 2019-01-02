@@ -1,5 +1,5 @@
 import Mock from 'mockjs'
-import {logout} from './login'
+// import {logout} from './login'
 import { getTableData, getDragList, uploadImage } from './data'
 import { getMessageInit, getContentByMsgId, hasRead, removeReaded, restoreTrash, messageCount } from './user'
 
@@ -9,7 +9,7 @@ Mock.setup({
 })
 
 // 登录相关和获取用户信息
-Mock.mock(/\/logout/, logout)
+// Mock.mock(/\/logout/, logout)
 Mock.mock(/\/get_table_data/, getTableData)
 Mock.mock(/\/get_drag_list/, getDragList)
 Mock.mock(/\/save_error_logger/, 'success')

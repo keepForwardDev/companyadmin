@@ -26,6 +26,6 @@ export const getUserInfo = req => {
   return USER_MAP[params.token]
 } */
 
-export const logout = req => {
+/* export const logout = req => {
   return null
-}
+} */
