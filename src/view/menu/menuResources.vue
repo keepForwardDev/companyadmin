@@ -10,7 +10,7 @@
           <Panel name="1" ref="panelKey">
             <span style="color: #2D8cF0;">点击收缩查询条件
               <div class="operate">
-                <Button @click="handleSearch" class="search-btn" type="primary"><Icon type="search"/>&nbsp;&nbsp;搜索
+                <Button @click.stop="handleSearch" class="search-btn" type="primary"><Icon type="search"/>&nbsp;&nbsp;搜索
                 </Button>
                 <Button @click.stop="batchDelete()" class="search-btn" type="error"><Icon type="ios-trash"/>&nbsp;&nbsp;删除
                 </Button>
@@ -134,7 +134,7 @@
             </template>
             <template>
               <!--<Tree :data="tableData" ref="tree"></Tree>-->
-              <ul id="tree" class="ztree" style="width:230px; overflow:auto;"></ul>
+              <ul id="tree1" class="ztree" style="width:230px; overflow:auto;"></ul>
             </template>
           </FormItem>
           </Col>
@@ -277,7 +277,7 @@
           },
           callback: {
             beforeClick: function (treeId, treeNode, clickFlag) {
-              var treeObj = $.fn.zTree.getZTreeObj("tree");
+              var treeObj = $.fn.zTree.getZTreeObj("tree1")
               var nodes = treeObj.getSelectedNodes()
               if (nodes.length > 0) {
                 treeObj.cancelSelectedNode(nodes[0])
@@ -311,6 +311,7 @@
         })
       },
       handleSearch() {
+        this.$refs['panelKey'].isActive = false
         this.getData()
       },
       pageSizeChange(pageSize) {
@@ -349,7 +350,7 @@
         }
         setTimeout(() => {
           this.$refs['Form'].validate()
-          var treeObj = $.fn.zTree.getZTreeObj('tree');
+          var treeObj = $.fn.zTree.getZTreeObj('tree1')
           var node = treeObj.getNodeByParam('id', row.menuId, null)
           treeObj.selectNode(node)
         }, 500)
@@ -364,8 +365,8 @@
       },
       saveForm() {
         this.loading = true
-        var treeObj = $.fn.zTree.getZTreeObj('tree');
-        var nodes = treeObj.getSelectedNodes();
+        var treeObj = $.fn.zTree.getZTreeObj('tree1')
+        var nodes = treeObj.getSelectedNodes()
         if (nodes.length>0) {
           this.formItem.menuId = nodes[0].id
         } else {
@@ -429,7 +430,7 @@
       getZtree() {
         getTree().then(res => {
           if (res.data.code === 1) {
-            $.fn.zTree.init($("#tree"), this.setting, res.data.data);
+            $.fn.zTree.init($("#tree1"), this.setting, res.data.data)
           } else if (res.data.code === -1) {
             this.$Message.error(res.data.msg)
           }

@@ -23,3 +23,19 @@ export const saveRole = (data) => {
     method: 'post'
   })
 }
+
+export const getRoleRes = (id) => {
+  return axios.request({
+    url: '/resource/roleRes',
+    params: id,
+    method: 'get'
+  })
+}
+
+export const getRoleMenu = (id) => {
+  return axios.request({
+    url: '/resource/menuRes',
+    params: id,
+    method: 'get'
+  })
+}

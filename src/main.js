@@ -12,9 +12,15 @@ import installPlugin from '@/plugin'
 import './index.less'
 import '@/assets/icons/iconfont.css'
 import TreeTable from 'tree-table-vue'
+import {oneOf} from '@/libs/tools'
 // 实际打包时应该不引入mock
 /* eslint-disable */
 if (process.env.NODE_ENV !== 'production') require('@/mock')
+
+/** 注册全局函数权限判断 res 为 resCode*/
+Vue.prototype.hasResources = function (res) {
+  return oneOf(res, store.state.user.resources)
+}
 
 Vue.use(iView, {
   i18n: (key, value) => i18n.t(key, value)

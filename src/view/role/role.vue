@@ -32,11 +32,11 @@
             @on-popper-show="checkSelected"
             placement="bottom"
             @on-ok="batchDelete()">
-            <Button class="search-btn" type="error">
+            <Button class="search-btn" type="error" v-if="hasResources('role_delete')">
               <Icon type="ios-trash"/>&nbsp;&nbsp;删除
             </Button>
           </Poptip>
-          <Button @click.stop="add()" class="search-btn" type="success">
+          <Button @click.stop="add()" class="search-btn" type="success" v-if="hasResources('role_add')">
             <Icon type="ios-add-circle"/>&nbsp;&nbsp;新增
           </Button>
         </div>
@@ -45,9 +45,11 @@
         <Table :columns="columns" :data="tableData" :loading="tableLoading" @on-selection-change="selectChange">
           <template slot-scope="{ row, index }" slot="ope">
             <Button @click="editBtn(row)" icon="md-create" type="primary" shape="circle" size="small"
+                    v-if="hasResources('role_add')"
                     title="编辑"></Button> &nbsp;&nbsp;
             <Poptip
               confirm
+              v-if="hasResources('role_delete')"
               title="确定删除吗？"
               @on-ok="ok(row)">
               <Button icon="ios-trash" type="error" shape="circle" size="small"
@@ -118,16 +120,22 @@
             </template>
             <template>
               <!--<Tree :data="tableData" ref="tree"></Tree>-->
-              <ul id="tree" class="ztree" style="width:230px; overflow:auto;"></ul>
+              <ul id="menuTree" class="ztree" style="width:230px; overflow:auto;"></ul>
             </template>
           </FormItem>
           </Col>
         </Row>
         <Row>
-          <Col :span="24">
-          <!--<Table :columns="columns" :data="tableData" :loading="tableLoading" @on-selection-change="selectChange">
-
-           </Table>-->
+          <Col :span="span">
+          <FormItem>
+            <template slot="label">
+              <span class="label-item">授予权限</span>
+            </template>
+            <template>
+              <!--<Tree :data="tableData" ref="tree"></Tree>-->
+              <ul id="resourceTree" class="ztree" style="width:230px; overflow:auto;"></ul>
+            </template>
+          </FormItem>
           </Col>
         </Row>
       </Form>
@@ -137,11 +145,12 @@
 <script>
   import '@/plugin/ztree/js/jquery-1.4.4.min.js'
   import '@/plugin/ztree/js/jquery.ztree.all.js'
-  import {getRoleList, deleteRole, saveRole} from '@/api/system'
-  import {getTree} from '@/api/menu'
+  import {getRoleList, deleteRole, saveRole, getRoleRes, getRoleMenu} from '@/api/system'
+  import {getTree, menuResourceTree} from '@/api/menu'
   import {checNotNull} from '@/libs/validate'
   import {sloveErr} from '@/libs/util'
-
+  import openIcon from '@/plugin/ztree/css/zTreeStyle/img/diy/1_open.png'
+  import resIcon from '@/plugin/ztree/css/zTreeStyle/img/diy/2.png'
   export default {
     name: 'sys_role',
     components: {},
@@ -219,19 +228,6 @@
           },
           check: {
             enable: true,
-          },
-          callback: {
-            beforeClick: function (treeId, treeNode, clickFlag) {
-              var treeObj = $.fn.zTree.getZTreeObj("tree");
-              var nodes = treeObj.getSelectedNodes()
-              if (nodes.length > 0) {
-                treeObj.cancelSelectedNode(nodes[0])
-                if (nodes[0].id === treeNode.id) {
-                  return false
-                }
-              }
-              return true
-            }
           }
         }
       }
@@ -288,6 +284,9 @@
         setTimeout(() => {
           this.$refs['Form'].validate()
         }, 500)
+        // 获取选中项
+        this.roleRes(row.id)
+        this.menuRes(row.id)
         this.seeAble = true
       },
       ok(row) {
@@ -333,7 +332,9 @@
         this.loading = true
         this.$refs['Form'].validate(valid => {
           if (valid) {
-            saveRole(this.formItem).then(res => {
+            var menuRes = this.getMenuResCheckNodes()
+            var params = Object.assign(menuRes, this.formItem)
+            saveRole(params).then(res => {
               if (res.data.code === 1) {
                 this.$Message.success(res.data.msg)
                 this.seeAble = false
@@ -351,6 +352,29 @@
           }
         })
       },
+      getMenuResCheckNodes() {
+        // 资源
+        var res = $.fn.zTree.getZTreeObj('resourceTree').getCheckedNodes(true)
+        // 菜单
+        var menu = $.fn.zTree.getZTreeObj('menuTree').getCheckedNodes(true)
+        var resArray = new Array()
+        var menuArray = new Array()
+        // 后台传回来id为负数
+        for (var i in res) {
+          if (res[i].id < 0) {
+            resArray.push(-(res[i].id))
+          }
+        }
+        for (var i in menu) {
+          menuArray.push(menu[i].id)
+        }
+
+        var menuRes = {
+          resources: resArray.join(','),
+          menu: menuArray.join(',')
+        }
+        return menuRes
+      },
       recoverBtn() {
         setTimeout(() => {
           this.loading = false
@@ -362,12 +386,67 @@
       getZtree() {
         getTree().then(res => {
           if (res.data.code === 1) {
-            $.fn.zTree.init($("#tree"), this.setting, res.data.data);
+            $.fn.zTree.init($("#menuTree"), this.setting, res.data.data)
           } else if (res.data.code === -1) {
             this.$Message.error(res.data.msg)
           }
         }).catch(err => {
           sloveErr(err, this)
+        })
+      },
+      setIcon(json) {
+        for (var i in json) {
+          if (json[i].id < 0) {
+            json[i].icon = resIcon
+          } else {
+            json[i].icon = openIcon
+          }
+          if (json[i].children) {
+            this.setIcon(json[i].children)
+          }
+        }
+        return json
+      },
+      getResTree() {
+        menuResourceTree().then(res => {
+          if (res.data.code === 1) {
+            var json = this.setIcon(res.data.data)
+            $.fn.zTree.init($("#resourceTree"), this.setting, res.data.data)
+          } else if (res.data.code === -1) {
+            this.$Message.error(res.data.msg)
+          }
+        }).catch(err => {
+          sloveErr(err, this)
+        })
+      },
+      roleRes(id) {
+        var params = {
+          id: id
+        }
+        var treeObj = $.fn.zTree.getZTreeObj('resourceTree')
+        getRoleRes(params).then(res => {
+          if (res.data.code === 1) {
+            var json = res.data.data
+            for (var i in json) {
+              var node = treeObj.getNodeByParam('id', -(json[i].resourceId), null)
+              treeObj.checkNode(node, true, true, false)
+            }
+          }
+        })
+      },
+      menuRes(id) {
+        var params = {
+          id: id
+        }
+        var treeObj = $.fn.zTree.getZTreeObj('menuTree')
+        getRoleMenu(params).then(res => {
+          if (res.data.code === 1) {
+            var json = res.data.data
+            for (var i in json) {
+              var node = treeObj.getNodeByParam('id', json[i].menuId, null)
+              treeObj.checkNode(node, true, true, false)
+            }
+          }
         })
       }
     },
@@ -377,6 +456,7 @@
     created() {
       this.handleSearch()
       this.getZtree()
+      this.getResTree()
     }
   }
 </script>

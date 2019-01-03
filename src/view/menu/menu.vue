@@ -229,7 +229,7 @@ export default {
         },
         callback: {
           beforeClick: function (treeId, treeNode, clickFlag) {
-            var treeObj = $.fn.zTree.getZTreeObj("tree");
+            var treeObj = $.fn.zTree.getZTreeObj("tree")
             var nodes = treeObj.getSelectedNodes()
             if (nodes.length > 0) {
               treeObj.cancelSelectedNode(nodes[0])
@@ -273,7 +273,7 @@ export default {
       }
       setTimeout(() => {
         this.$refs['menuForm'].validate()
-        var treeObj = $.fn.zTree.getZTreeObj('tree');
+        var treeObj = $.fn.zTree.getZTreeObj('tree')
         var node = treeObj.getNodeByParam('id', row.row.parentId, null)
         treeObj.selectNode(node)
       }, 500)
@@ -326,8 +326,8 @@ export default {
       this.$refs['menuForm'].validate((valid) => {
         if (valid) {
           //var selectNode = this.getSelectNode()
-          var treeObj = $.fn.zTree.getZTreeObj('tree');
-          var nodes = treeObj.getSelectedNodes();
+          var treeObj = $.fn.zTree.getZTreeObj('tree')
+          var nodes = treeObj.getSelectedNodes()
           if (nodes.length>0) {
             this.formItem.parentId = nodes[0].id
           }
@@ -415,7 +415,7 @@ export default {
     getZtree() {
       getTree().then(res => {
         if (res.data.code === 1) {
-          $.fn.zTree.init($("#tree"), this.setting, res.data.data);
+          $.fn.zTree.init($("#tree"), this.setting, res.data.data)
         } else if (res.data.code === -1) {
           this.$Message.error(res.data.msg)
         }

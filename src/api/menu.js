@@ -52,3 +52,10 @@ export const deleteResource = (id) => {
     method: 'get'
   })
 }
+
+export const menuResourceTree = () => {
+  return axios.request({
+    url: '/menu/menuResTree',
+    method: 'get'
+  })
+}

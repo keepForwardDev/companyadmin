@@ -70,26 +70,6 @@ var common = [
     ]
   },
   {
-    path: '/tools_methods',
-    name: 'tools_methods',
-    meta: {
-      hideInBread: true
-    },
-    component: Main,
-    children: [
-      {
-        path: 'tools_methods_page',
-        name: 'tools_methods_page',
-        meta: {
-          icon: 'ios-hammer',
-          title: '工具方法',
-          beforeCloseName: 'before_close_normal'
-        },
-        component: () => import('@/view/tools-methods/tools-methods.vue')
-      }
-    ]
-  },
-  {
     path: '/401',
     name: 'error_401',
     meta: {
