@@ -21,6 +21,10 @@ export default {
     pro: '/'
   },
   /**
+   * @description 验证码地址
+   */
+  kaptchaUrl: '/kaptcha',
+  /**
    * @description 默认打开的首页的路由name值，默认为home
    */
   homeName: 'home',

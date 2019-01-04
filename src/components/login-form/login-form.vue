@@ -14,12 +14,21 @@
         </span>
       </Input>
     </FormItem>
+    <FormItem prop="kaptcha" v-if="openKaptcha">
+      <img :src="kaptchaSrc" alt="换一张" style="padding-left: 10px;cursor: pointer" @click="refresh" id="kaptcha">
+      <Input v-model="form.kaptcha" placeholder="请输入验证码" style="width: 140px;float: left;" size="large">
+        <span slot="prepend">
+          <Icon :size="16" type="ios-image"></Icon>
+        </span>
+      </Input>
+    </FormItem>
     <FormItem>
       <Button @click="handleSubmit" type="primary" long>登录</Button>
     </FormItem>
   </Form>
 </template>
 <script>
+  import config from '@/config'
 export default {
   name: 'LoginForm',
   props: {
@@ -38,13 +47,28 @@ export default {
           { required: true, message: '密码不能为空', trigger: 'blur' }
         ]
       }
+    },
+    kaptchaRules: {
+      type: Array,
+      default: () => {
+        return [
+          { required: true, message: '验证码不能为空', trigger: 'blur' }
+        ]
+      }
+    },
+    openKaptcha: {
+      type: Boolean,
+      default: () => {
+        return false
+      }
     }
   },
   data () {
     return {
       form: {
         userName: '',
-        password: ''
+        password: '',
+        kaptcha: ''
       }
     }
   },
@@ -52,8 +76,14 @@ export default {
     rules () {
       return {
         userName: this.userNameRules,
-        password: this.passwordRules
+        password: this.passwordRules,
+        kaptcha: this.kaptchaRules
       }
+    },
+    kaptchaSrc() {
+      const baseUrl = process.env.NODE_ENV === 'development' ? config.baseUrl.dev : config.baseUrl.pro
+
+      return baseUrl + config.kaptchaUrl
     }
   },
   methods: {
@@ -62,10 +92,14 @@ export default {
         if (valid) {
           this.$emit('on-success-valid', {
             userName: this.form.userName,
-            password: this.form.password
+            password: this.form.password,
+            kaptcha: this.form.kaptcha
           })
         }
       })
+    },
+    refresh() {
+      document.getElementById("kaptcha").src= this.kaptchaSrc+ '?v='+new Date().getTime()
     }
   }
 }

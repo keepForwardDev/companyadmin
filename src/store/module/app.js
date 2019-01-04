@@ -33,6 +33,7 @@ export default {
     local: localRead('local'),
     errorList: [],
     menus: [],
+    initMenus: false, // 是否初始化菜单
     hasReadErrorPage: false
   },
   getters: {
@@ -97,6 +98,9 @@ export default {
     },
     setMenus (state, menus) {
       state.menus = menus
+    },
+    setInitMenus (state, init) {
+      state.initMenus = init
     }
   },
   actions: {

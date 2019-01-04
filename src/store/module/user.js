@@ -9,16 +9,17 @@ import {
   restoreTrash,
   getUnreadCount
 } from '@/api/user'
-import { setToken, getToken } from '@/libs/util'
+// import { setToken, getToken } from '@/libs/util'
 
 export default {
   state: {
     userName: '',
     userId: '',
     avatorImgPath: '',
-    token: getToken(),
+    token: '',
     access: '', // 自带的 菜单权限，已由动态路由代替，废弃
     resources: [], // 按钮权限
+    userMenu: [], // 用户菜单
     departmentName: '', // 部门名称
     roleName: '',
     hasGetInfo: false,
@@ -43,7 +44,7 @@ export default {
     },
     setToken (state, token) {
       state.token = token
-      setToken(token)
+      // setToken(token)
     },
     setHasGetInfo (state, status) {
       state.hasGetInfo = status
@@ -77,6 +78,9 @@ export default {
     },
     setRoleName (state, roleName) {
       state.roleName = roleName
+    },
+    setUserMenu(state, menu) {
+      state.userMenu = menu
     }
   },
   getters: {
@@ -86,20 +90,19 @@ export default {
   },
   actions: {
     // 登录
-    handleLogin ({ commit }, { userName, password, that }) {
+    handleLogin ({ commit }, { userName, password, kaptcha }) {
       userName = userName.trim()
       return new Promise((resolve, reject) => {
         login({
           userName,
-          password
+          password,
+          kaptcha
         }).then(res => {
           if (res.data.code === 1) {
             const data = res.data
             commit('setToken', data.data)
-            resolve()
-          } else {
-            that.$Message.error(res.data.msg)
           }
+          resolve(res)
         }).catch(err => {
           reject(err)
         })
@@ -111,6 +114,7 @@ export default {
         logout(state.token).then(() => {
           commit('setToken', '')
           commit('setAccess', [])
+          localStorage.tagNaveList = JSON.stringify([])
           resolve()
         }).catch(err => {
           reject(err)
@@ -136,6 +140,7 @@ export default {
               commit('setResources', data.data.resources)
               commit('setDepartmentName', data.data.departmentName)
               commit('setRoleName', data.data.roleName)
+              commit('setUserMenu', data.data.menu)
             }
             resolve(data)
           }).catch(err => {

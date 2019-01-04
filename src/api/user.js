@@ -1,9 +1,10 @@
 import axios from '@/libs/api.request'
 
-export const login = ({ userName, password }) => {
+export const login = ({ userName, password, kaptcha }) => {
   const data = {
     userName,
-    password
+    password,
+    kaptcha,
   }
   return axios.postForm({
     url: '/vueLogin',
