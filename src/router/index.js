@@ -3,15 +3,13 @@ import Router from 'vue-router'
 import routes from './routers'
 import store from '@/store'
 import iView from 'iview'
-import { setToken, getToken, canTurnTo, setTitle, filterAsyncRouter } from '@/libs/util'
+import { setToken, canTurnTo, setTitle, filterAsyncRouter } from '@/libs/util'
 import config from '@/config'
-import { getRouterReq } from '@/api/routers'
 import rot from '@/router/routers'
 const { homeName } = config
 Vue.use(Router)
 const router = new Router({
-  routes,
-  mode: 'history'
+  routes
 })
 const LOGIN_PAGE_NAME = 'login'
 
@@ -23,17 +21,15 @@ const turnTo = (to, access, next) => {
 router.beforeEach((to, from, next) => {
   iView.LoadingBar.start()
   // 已被初始化菜单
-  var menus = store.state.app.menus
-
-  if (to.name === 'error_404') { // 错误页面
+  /* if (to.name === 'error_404') { // 错误页面
     next()
     return
   } else if (to.name === 'error_401') {
     next()
     return
-  }
+  } */
 
-  if (store.state.user.hasGetInfo && to.name!== LOGIN_PAGE_NAME) { // 已登录跳转页面不是登录页
+  if (store.state.user.hasGetInfo && to.name !== LOGIN_PAGE_NAME) { // 已登录跳转页面不是登录页
     turnTo(to, store.state.user.access, next)
   } else if (store.state.user.hasGetInfo && to.name === LOGIN_PAGE_NAME) { // 已登录跳转页面为登录页
     next({

@@ -3,7 +3,9 @@ const path = require('path')
 const resolve = dir => {
   return path.join(__dirname, dir)
 }
-const outputpath= 'D:\\nodespace'
+const indexpath = 'E:\\TaskWorkSpace\\companyproject\\src\\main\\resources\\templates\\admin\\index.html'
+const outputpath = 'E:\\TaskWorkSpace\\companyproject\\src\\main\\resources\\static\\pc\\admin'
+const assetsPath = ''
 // 项目部署基础 vue cli 3.0
 // 默认情况下，我们假设你的应用将被部署在域的根目录下,
 // 例如：https://www.my-app.com/
@@ -13,7 +15,7 @@ const outputpath= 'D:\\nodespace'
 // 需要将它改为'/my-app/'
 // iview-admin线上演示打包路径： https://file.iviewui.com/admin-dist/
 const BASE_URL = process.env.NODE_ENV === 'production'
-  ? '/'
+  ? '/pc/admin'
   : '/'
 
 module.exports = {
@@ -25,8 +27,9 @@ module.exports = {
   // https://www.foobar.com/my-app/
   // then change this to '/my-app/'
   baseUrl: BASE_URL,
-  outputDir: 'D:/tmp/', // vue-cli-service build 默认清理该文件夹    构建时传入 --no-clean 可关闭该行为)
-  assetsDir: 'assets', // 静态文件路径
+  outputDir: outputpath, // vue-cli-service build 默认清理该文件夹    构建时传入 --no-clean 可关闭该行为)
+  indexPath: indexpath,
+  assetsDir: assetsPath, // 静态文件路径
   // tweak internal webpack configuration.
   // see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
   // 如果你不需要使用eslint，把lintOnSave设为false即可
