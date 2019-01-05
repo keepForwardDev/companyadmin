@@ -1,13 +1,23 @@
 <style lang="less" scoped>
-  @import './menu.less';
+  .operate {
+    float: right;
+  }
+
+  .operate button {
+    margin-left: 10px;
+    margin-bottom: 10px;
+  }
+  .label-item {
+    font-weight: 700;
+  }
   @import '~@/plugin/ztree/css/zTreeStyle/zTreeStyle.css';
 </style>
 <template>
   <div>
     <Card>
       <div class="search-con search-con-top">
-        <div class="operate">
-          <Button @click="newMenu()" class="search-btn" type="success"><Icon type="ios-add-circle"/>&nbsp;&nbsp;新增
+        <div class="operate" style="float: right;">
+          <Button @click="newMenu()" class="search-btn" type="success" style=""><Icon type="ios-add-circle"/>&nbsp;&nbsp;新增
           </Button>
         </div>
       </div>

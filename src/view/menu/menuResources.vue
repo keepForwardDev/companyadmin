@@ -1,4 +1,4 @@
-<style lang="less">
+<style lang="less" scoped>
   @import './common.less';
   @import '~@/plugin/ztree/css/zTreeStyle/zTreeStyle.css';
 </style>
